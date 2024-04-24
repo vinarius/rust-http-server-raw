@@ -69,6 +69,8 @@ fn handle_stream_connection(mut stream: TcpStream) -> io::Result<()> {
 
     let response = format!("HTTP/1.1 {response_status}\r\n\r\n");
 
+    println!("response: {response}");
+
     stream.write_all(response.as_bytes())?;
 
     Ok(())
