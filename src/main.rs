@@ -3,40 +3,13 @@ use std::{
     net::{TcpListener, TcpStream},
 };
 
-enum HttpMethod {
-    Get,
-    Unhandled(),
-}
+use crate::{
+    models::{HttpHeaders, HttpMethod, HttpResponse, HttpStatus, HttpVersion},
+    routes::{echo::handle_echo, root::handle_root},
+};
 
-enum HttpVersion {
-    V1_1,
-    Unhandled(),
-}
-
-enum HttpStatus {
-    Ok,
-    NotFound,
-}
-
-impl HttpStatus {
-    fn into_string(&self) -> String {
-        match self {
-            Self::Ok => String::from("200 OK"),
-            Self::NotFound => String::from("404 Not Found"),
-        }
-    }
-}
-
-struct HttpHeaders {
-    content_type: String,
-    content_length: usize,
-}
-
-struct HttpResponse {
-    status: HttpStatus,
-    headers: HttpHeaders,
-    body: String,
-}
+mod models;
+mod routes;
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:4221").unwrap();
@@ -125,26 +98,4 @@ fn handle_stream_connection(mut stream: TcpStream) -> io::Result<()> {
     stream.write_all(response.as_bytes())?;
 
     Ok(())
-}
-
-fn handle_root() -> HttpResponse {
-    HttpResponse {
-        status: HttpStatus::Ok,
-        headers: HttpHeaders {
-            content_type: String::from("text/plain"),
-            content_length: 0,
-        },
-        body: String::new(),
-    }
-}
-
-fn handle_echo(path: &str) -> HttpResponse {
-    HttpResponse {
-        status: HttpStatus::Ok,
-        headers: HttpHeaders {
-            content_type: String::from("text/plain"),
-            content_length: path.len(),
-        },
-        body: String::from(path),
-    }
 }
