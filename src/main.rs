@@ -4,8 +4,8 @@ use std::{
 };
 
 use crate::{
-    models::{HttpHeaders, HttpMethod, HttpResponse, HttpStatus, HttpVersion},
-    routes::{echo::handle_echo, root::handle_root},
+    models::{Method, Request, RequestHeaders, Response, ResponseHeaders, Status, Version},
+    routes::router::router,
 };
 
 mod models;
@@ -33,58 +33,78 @@ fn handle_stream_connection(mut stream: TcpStream) -> io::Result<()> {
     let mut status_line = String::new();
     my_buf_reader.read_line(&mut status_line)?;
 
+    println!("request received");
+    println!("---------------");
+    println!("{status_line}");
+
     let mut status_line_split = status_line.split_whitespace();
     let method = status_line_split.next().unwrap();
     let path = status_line_split.next().unwrap();
     let version = status_line_split.next().unwrap();
 
-    let _method = match method {
-        "GET" => HttpMethod::Get,
-        _ => HttpMethod::Unhandled(),
+    // i think this could be better somehow
+    let method = match method {
+        "GET" => Method::Get,
+        "OPTIONS" => Method::Options,
+        "HEAD" => Method::Head,
+        "POST" => Method::Post,
+        "PUT" => Method::Put,
+        "DELETE" => Method::Delete,
+        "TRACE" => Method::Trace,
+        "CONNECT" => Method::Connect,
+        _ => Method::Unhandled,
     };
 
-    let _version = match version {
-        "HTTP1/1" => HttpVersion::V1_1,
-        _ => HttpVersion::Unhandled(),
+    let version = match version {
+        "HTTP/1.1" => Version::V1_1,
+        _ => Version::Unhandled,
     };
 
-    let mut resources_split = path.split('/');
-    let root_resource = resources_split.nth(1).unwrap();
-    let nested_resources = resources_split.collect::<Vec<&str>>().join("/");
-
-    println!("root_resource: {root_resource}");
-
-    let response = match root_resource {
-        "" => handle_root(),
-        "echo" => handle_echo(&nested_resources),
-        _ => HttpResponse {
-            status: HttpStatus::NotFound,
-            headers: HttpHeaders {
-                content_type: String::from("text/plain"),
-                content_length: 0,
-            },
-            body: String::new(),
-        },
+    let request_headers = RequestHeaders {
+        host: Some(String::new()),       // TODO:
+        user_agent: Some(String::new()), // TODO:
     };
 
-    let HttpResponse {
+    let request = Request {
+        method,
+        path: String::from(path),
+        version,
+        headers: request_headers,
+    };
+
+    println!("{request:#?}");
+
+    let handler_response = router(request);
+
+    let Response {
         status: response_status,
         headers,
         body,
-    } = response;
+    } = handler_response;
 
     let mut response = String::from("HTTP/1.1 ");
 
     response.push_str(&response_status.into_string());
     response.push_str("\r\n");
 
-    if headers.content_length > 0 {
-        response.push_str(format!("Content-Type: {}", headers.content_type).as_str());
+    if headers
+        .as_ref()
+        .is_some_and(|headers| headers.content_length > 0)
+    {
+        let ResponseHeaders {
+            content_type,
+            content_length,
+        } = headers.unwrap();
+
+        response.push_str(format!("Content-Type: {}", content_type).as_str());
         response.push_str("\r\n");
-        response.push_str(format!("Content-Length: {}", headers.content_length).as_str());
+        response.push_str(format!("Content-Length: {}", content_length).as_str());
         response.push_str("\r\n");
         response.push_str("\r\n");
-        response.push_str(&body);
+
+        if body.is_some() {
+            response.push_str(&body.unwrap());
+        }
     } else {
         response.push_str("\r\n");
     }

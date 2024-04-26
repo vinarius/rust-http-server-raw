@@ -1,12 +1,9 @@
-use crate::models::{HttpHeaders, HttpResponse, HttpStatus};
+use crate::models::{Response, Status};
 
-pub fn handle_root() -> HttpResponse {
-    HttpResponse {
-        status: HttpStatus::Ok,
-        headers: HttpHeaders {
-            content_type: String::from("text/plain"),
-            content_length: 0,
-        },
-        body: String::new(),
+pub fn handle_root() -> Response {
+    Response {
+        status: Status::Ok,
+        headers: None,
+        body: None,
     }
 }
