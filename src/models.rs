@@ -19,6 +19,7 @@ pub enum Version {
 
 pub enum Status {
     Ok,
+    Created,
     BadRequest,
     NotFound,
     InternalServerError,
@@ -28,6 +29,7 @@ impl Status {
     pub fn into_string(&self) -> String {
         match self {
             Self::Ok => String::from("200 OK"),
+            Self::Created => String::from("201 Created"),
             Self::BadRequest => String::from("400 Bad Request"),
             Self::NotFound => String::from("404 Not Found"),
             Self::InternalServerError => String::from("500 Internal Server Error"),

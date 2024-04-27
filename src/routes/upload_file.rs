@@ -86,11 +86,8 @@ pub fn handle_upload_file(request: Request) -> Response {
     }
 
     return Response {
-        status: Status::Ok,
-        headers: Some(ResponseHeaders {
-            content_type: String::from("application/octet-stream"),
-            content_length: 0,
-        }),
+        status: Status::Created,
+        headers: None,
         body: None,
     };
 }
