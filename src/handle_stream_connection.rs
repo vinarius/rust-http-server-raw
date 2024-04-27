@@ -38,11 +38,12 @@ pub fn handle_stream_connection(mut stream: TcpStream) -> io::Result<()> {
         response.push_str(format!("Content-Length: {}", content_length).as_str());
         response.push_str("\r\n");
         response.push_str("\r\n");
-
-        if body.is_some() {
-            response.push_str(&body.unwrap());
-        }
     } else {
+        response.push_str("\r\n");
+    }
+
+    if body.is_some() {
+        response.push_str(&body.unwrap());
         response.push_str("\r\n");
     }
 

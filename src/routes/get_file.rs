@@ -3,7 +3,7 @@ use std::{env, path::Path};
 use itertools::Itertools;
 
 use crate::{
-    models::{Request, Response, Status},
+    models::{Request, Response, ResponseHeaders, Status},
     routes::router::get_nested_resources,
 };
 
@@ -33,8 +33,8 @@ pub fn handle_get_file(request: Request) -> Response {
         };
     }
 
-    let unwrapped_attempt = get_directory_attempt.unwrap();
-    let directory = Path::new(&unwrapped_attempt);
+    let directory_string = get_directory_attempt.unwrap();
+    let directory = Path::new(&directory_string);
 
     if !directory.exists() {
         return Response {
@@ -50,8 +50,9 @@ pub fn handle_get_file(request: Request) -> Response {
     let file_name = get_nested_resources(request);
     println!("file_name: {file_name}");
 
-    let file_path_string = format!("{:?}{:?}", directory, file_name);
+    let file_path_string = format!("{}{}", directory_string, file_name);
     let file_path = Path::new(&file_path_string);
+    println!("file_path: {file_path:?}");
 
     if !file_path.exists() {
         return Response {
@@ -65,7 +66,10 @@ pub fn handle_get_file(request: Request) -> Response {
 
     return Response {
         status: Status::Ok,
-        headers: None,
+        headers: Some(ResponseHeaders {
+            content_type: String::from("application/octet-stream"),
+            content_length: file_contents.len(),
+        }),
         body: Some(file_contents),
     };
 }
