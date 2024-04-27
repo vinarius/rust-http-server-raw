@@ -1,12 +1,16 @@
-use crate::{Response, ResponseHeaders, Status};
+use crate::{models::Request, Response, ResponseHeaders, Status};
 
-pub fn handle_echo(path: &str) -> Response {
+use super::router::get_nested_resources;
+
+pub fn handle_echo(request: Request) -> Response {
+    let nested_resources = get_nested_resources(request);
+
     Response {
         status: Status::Ok,
         headers: Some(ResponseHeaders {
             content_type: String::from("text/plain"),
-            content_length: path.len(),
+            content_length: nested_resources.len(),
         }),
-        body: Some(String::from(path)),
+        body: Some(String::from(nested_resources)),
     }
 }
