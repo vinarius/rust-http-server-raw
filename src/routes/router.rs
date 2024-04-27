@@ -26,7 +26,10 @@ pub fn router(request: Request) -> Response {
 pub fn get_nested_resources(request: Request) -> String {
     let mut resources_split = request.path.split('/');
     resources_split.next().unwrap();
+    resources_split.next().unwrap();
+
     let collected_resources = resources_split.collect::<Vec<&str>>();
     let joined_resources = collected_resources.join("/");
+
     joined_resources
 }
