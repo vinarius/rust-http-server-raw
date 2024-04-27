@@ -1,4 +1,4 @@
-use std::net::TcpListener;
+use std::{net::TcpListener, thread};
 
 use crate::handle_stream_connection::handle_stream_connection;
 use crate::models::{Response, ResponseHeaders, Status};
@@ -14,9 +14,11 @@ fn main() {
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
-                if let Err(stream_error) = handle_stream_connection(stream) {
-                    println!("error handling stream connection: {stream_error}");
-                }
+                thread::spawn(|| {
+                    if let Err(stream_error) = handle_stream_connection(stream) {
+                        println!("error handling stream connection: {stream_error}");
+                    }
+                });
             }
             Err(e) => {
                 println!("error: {}", e);
