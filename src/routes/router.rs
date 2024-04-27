@@ -1,5 +1,5 @@
 use crate::{
-    models::{Method, Request, Response, ResponseHeaders, Status},
+    models::{Method, Request, Response, Status},
     routes::{echo::handle_echo, root::handle_root, user_agent::handle_user_agent},
 };
 
@@ -15,10 +15,7 @@ pub fn router(request: Request) -> Response {
         "user-agent" if request.method == Method::Get => handle_user_agent(request),
         _ => Response {
             status: Status::NotFound,
-            headers: Some(ResponseHeaders {
-                content_type: String::from("text/plain"),
-                content_length: 0,
-            }),
+            headers: None,
             body: None,
         },
     }

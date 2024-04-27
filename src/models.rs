@@ -37,6 +37,7 @@ impl Status {
 pub struct RequestHeaders {
     pub host: Option<String>,
     pub user_agent: Option<String>,
+    pub accept: Option<String>,
 }
 
 pub struct ResponseHeaders {
