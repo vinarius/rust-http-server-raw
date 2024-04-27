@@ -3,7 +3,7 @@ use crate::{
     routes::{echo::handle_echo, root::handle_root, user_agent::handle_user_agent},
 };
 
-use super::get_file::handle_get_file;
+use super::{get_file::handle_get_file, upload_file::handle_upload_file};
 
 pub fn router(request: Request) -> Response {
     let mut resources_split = request.path.split('/');
@@ -15,6 +15,7 @@ pub fn router(request: Request) -> Response {
         "echo" if request.method == Method::Get => handle_echo(request),
         "user-agent" if request.method == Method::Get => handle_user_agent(request),
         "files" if request.method == Method::Get => handle_get_file(request),
+        "files" if request.method == Method::Post => handle_upload_file(request),
         _ => Response {
             status: Status::NotFound,
             headers: None,
@@ -23,7 +24,7 @@ pub fn router(request: Request) -> Response {
     }
 }
 
-pub fn get_nested_resources(request: Request) -> String {
+pub fn get_nested_resources(request: &Request) -> String {
     let mut resources_split = request.path.split('/');
     resources_split.next().unwrap();
     resources_split.next().unwrap();

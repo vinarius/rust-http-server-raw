@@ -1,5 +1,5 @@
 use std::{
-    io::{self, BufRead, BufReader},
+    io::{self, BufRead, BufReader, Read},
     net::TcpStream,
 };
 
@@ -50,6 +50,7 @@ pub fn parse_request(stream: &TcpStream) -> io::Result<Request> {
         host: None,
         user_agent: None,
         accept: None,
+        content_length: None,
     };
 
     let mut raw_request_lines = raw_request.lines();
@@ -81,6 +82,19 @@ pub fn parse_request(stream: &TcpStream) -> io::Result<Request> {
         if *header_name == "Accept" {
             request_headers.accept = Some(header_value.to_string());
         }
+
+        if *header_name == "Content-Length" {
+            request_headers.content_length = Some(header_value.parse().unwrap());
+        }
+    }
+
+    let mut buffer;
+
+    if let Some(length) = request_headers.content_length {
+        buffer = vec![0; length];
+        my_buf_reader.read_exact(&mut buffer).unwrap();
+    } else {
+        buffer = vec![0; 0];
     }
 
     let request = Request {
@@ -88,9 +102,10 @@ pub fn parse_request(stream: &TcpStream) -> io::Result<Request> {
         path: String::from(path),
         version,
         headers: request_headers,
+        body: String::from_utf8(buffer).unwrap(),
     };
 
-    // println!("{request:#?}");
+    println!("{request:#?}");
 
     Ok(request)
 }

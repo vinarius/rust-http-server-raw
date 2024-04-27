@@ -47,7 +47,7 @@ pub fn handle_get_file(request: Request) -> Response {
         };
     }
 
-    let file_name = get_nested_resources(request);
+    let file_name = get_nested_resources(&request);
     println!("file_name: {file_name}");
 
     let file_path_string = format!("{}{}", directory_string, file_name);

@@ -21,6 +21,7 @@ pub enum Status {
     Ok,
     BadRequest,
     NotFound,
+    InternalServerError,
 }
 
 impl Status {
@@ -29,6 +30,7 @@ impl Status {
             Self::Ok => String::from("200 OK"),
             Self::BadRequest => String::from("400 Bad Request"),
             Self::NotFound => String::from("404 Not Found"),
+            Self::InternalServerError => String::from("500 Internal Server Error"),
         }
     }
 }
@@ -38,6 +40,7 @@ pub struct RequestHeaders {
     pub host: Option<String>,
     pub user_agent: Option<String>,
     pub accept: Option<String>,
+    pub content_length: Option<usize>,
 }
 
 pub struct ResponseHeaders {
@@ -51,6 +54,7 @@ pub struct Request {
     pub path: String,
     pub version: Version,
     pub headers: RequestHeaders,
+    pub body: String,
 }
 
 pub struct Response {
