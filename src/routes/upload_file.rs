@@ -3,7 +3,7 @@ use std::{env, io::Write, path::Path};
 use itertools::Itertools;
 
 use crate::{
-    models::{Request, Response, ResponseHeaders, Status},
+    models::{Request, Response, Status},
     routes::router::get_nested_resources,
 };
 
